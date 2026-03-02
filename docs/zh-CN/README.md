@@ -182,7 +182,7 @@ npm run build
 npm run lint
 
 # 格式化代码
-npm run format
+npm run fmt
 ```
 
 ## 📜 许可证

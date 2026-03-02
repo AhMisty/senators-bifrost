@@ -7,7 +7,7 @@ export const parseQueueResearch = (
   body: string,
   position: number,
   result: { failed: boolean; data: string },
-) => {
+): number => {
   //清空原值
   operator.queues.research.clear()
 

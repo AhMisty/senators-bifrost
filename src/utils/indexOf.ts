@@ -4,7 +4,7 @@ export const indexOfSlice = (
   result: { failed: boolean; data: string },
   key1: string,
   key2: string,
-) => {
+): number => {
   const start = body.indexOf(key1, position) + key1.length
   if (start === key1.length - 1) {
     result.failed = true
@@ -25,7 +25,7 @@ export const indexOfOrder = (
   position: number,
   result: { failed: boolean },
   ...keys: string[]
-) => {
+): number => {
   for (const key of keys) {
     const index = body.indexOf(key, position)
     if (index === -1) {

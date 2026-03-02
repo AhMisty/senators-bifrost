@@ -8,7 +8,7 @@ export const parseQueueShipyard = (
   body: string,
   position: number,
   result: { failed: boolean; data: string },
-) => {
+): number => {
   //清空原值
   planet.queues.shipyard.clear()
 

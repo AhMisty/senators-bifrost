@@ -7,7 +7,7 @@ export const parseResource = (
   body: string,
   position: number,
   result: { failed: boolean; data: string },
-) => {
+): number => {
   position = indexOfSlice(body, position, result, 'darkmatter" name="', '"')
   if (result.failed) return position
   operator.elements.set(921, numericalString(result.data))

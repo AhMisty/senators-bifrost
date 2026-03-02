@@ -8,7 +8,7 @@ export const parseLimit = (
   body: string,
   position: number,
   result: { failed: boolean; data: string },
-) => {
+): number => {
   position = indexOfOrder(body, position, result, 'resourceTicker')
   if (result.failed) return position
 

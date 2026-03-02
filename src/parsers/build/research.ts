@@ -7,7 +7,7 @@ export const parseBuildResearch = (
   body: string,
   position: number,
   result: { failed: boolean; data: string },
-) => {
+): number => {
   //遍历DatatList，获取每一对id和level，压入operator的elements
   position = indexOfSlice(body, position, result, 'DatatList		= ', ';')
   if (result.failed) return position

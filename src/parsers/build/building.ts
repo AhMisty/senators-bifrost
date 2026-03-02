@@ -9,7 +9,7 @@ export const parseBuildBuilding = (
   body: string,
   position: number,
   result: { failed: boolean; data: string },
-) => {
+): number => {
   while (true) {
     //定位到内容块
     position = indexOfOrder(body, position, result, 'btn_build_border"', 'value="')

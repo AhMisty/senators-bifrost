@@ -182,7 +182,7 @@ npm run build
 npm run lint
 
 # Format code
-npm run format
+npm run fmt
 ```
 
 ## 📜 License

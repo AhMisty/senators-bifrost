@@ -9,7 +9,7 @@ export const parseBuildShipyard = (
   body: string,
   position: number,
   result: { failed: boolean; data: string },
-) => {
+): number => {
   //遍历DatatList，获取每一对id和available，压入planet的elements
   position = indexOfSlice(body, position, result, 'DatatList		= ', ';')
   if (result.failed) return position

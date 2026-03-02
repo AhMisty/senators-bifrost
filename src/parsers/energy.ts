@@ -9,7 +9,7 @@ export const parseEnergy = (
   body: string,
   position: number,
   result: { failed: boolean; data: string },
-) => {
+): number => {
   position = indexOfSlice(body, position, result, 'current_energy" name="', '"')
   if (result.failed) return position
   const count = numericalString(result.data)

@@ -8,7 +8,7 @@ export const parseControl = (
   body: string,
   position: number,
   result: { failed: boolean; data: string },
-) => {
+): number => {
   //定位到内容块
   position = indexOfOrder(body, position, result, '"ally_content"')
   if (result.failed) return position

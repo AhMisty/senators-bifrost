@@ -6,7 +6,7 @@ export const parseFleetToken = (
   body: string,
   position: number,
   result: { failed: boolean; data: string },
-) => {
+): number => {
   position = indexOfSlice(body, position, result, 'token" value="', '"')
   if (result.failed) return position
   fleet.token = result.data
@@ -19,7 +19,7 @@ export const parseFleetAllyContent = (
   body: string,
   position: number,
   result: { failed: boolean; data: string },
-) => {
+): number => {
   position = indexOfSlice(body, position, result, 'ally_contents">', '</div>')
   if (result.failed) return position
 

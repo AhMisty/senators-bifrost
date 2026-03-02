@@ -6,7 +6,7 @@ export const parseId = (
   body: string,
   position: number,
   result: { failed: boolean; data: string },
-) => {
+): number => {
   position = indexOfSlice(body, position, result, 'Playercard(', ',')
   if (!result.failed) {
     operator.id = Number(result.data)

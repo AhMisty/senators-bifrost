@@ -20,6 +20,7 @@ import { parseFleetAllyContent, parseFleetToken } from './parsers/fleet'
 export class Operator {
   public id: number = NaN
   public token: string = ''
+  public ip: string = ''
   public readonly elements: Elements = new Elements()
   public readonly planets: Planets = new Planets()
   public readonly queues: {
@@ -49,6 +50,7 @@ export class Operator {
       {
         'Content-Type': 'application/x-www-form-urlencoded',
         Connection: 'Keep-Alive',
+        Forwarded: this.ip,
       },
     )
     if (!response) return false
@@ -81,6 +83,7 @@ export class Operator {
     const response = await this.courier.get(url, {
       Cookie: this.token ? `${this.config.token}=${this.token};` : '',
       Connection: 'Keep-Alive',
+      Forwarded: this.ip,
     })
     if (!response) return false
     try {
@@ -102,6 +105,7 @@ export class Operator {
       'Content-Type': 'application/x-www-form-urlencoded',
       Cookie: this.token ? `${this.config.token}=${this.token};` : '',
       Connection: 'Keep-Alive',
+      Forwarded: this.ip,
     })
     if (!response) return false
     try {

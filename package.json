@@ -1,6 +1,6 @@
 {
   "name": "@senators/bifrost",
-  "version": "1.1.5",
+  "version": "1.1.6",
   "private": false,
   "description": "A powerful TypeScript library for interacting with OGame game servers, making your interstellar journey easier!",
   "keywords": [
@@ -38,11 +38,12 @@
     "npm-run-all2": "latest",
     "oxfmt": "latest",
     "oxlint": "latest",
+    "oxlint-tsgolint": "latest",
     "rolldown": "latest",
     "rolldown-plugin-dts": "latest"
   },
   "scripts": {
-    "lint": "oxlint . --fix --ignore-path .gitignore",
+    "lint": "oxlint . --fix --type-aware --type-check --ignore-path .gitignore",
     "fmt": "oxfmt . --write --ignore-path .gitignore",
     "check": "run-s lint fmt",
     "git-add": "git add .",

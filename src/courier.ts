@@ -1,3 +1,5 @@
+type RequestBody = string | URLSearchParams | Readonly<Record<string, unknown>>
+
 export class Courier {
   public base: string
   public timeout: number
@@ -5,47 +7,50 @@ export class Courier {
     this.base = base
     this.timeout = timeout
   }
-  public async get(url: string, headers?: HeadersInit): Promise<false | Response> {
+  private async request(url: string, init: RequestInit): Promise<false | Response> {
     const abort_controller = new AbortController()
     const id = setTimeout(() => abort_controller.abort(), this.timeout)
     try {
-      const response = await fetch(new URL(url, this.base), {
-        method: 'GET',
-        headers: {
-          ...headers,
-        },
+      return await fetch(new URL(url, this.base), {
+        ...init,
         redirect: 'manual',
         credentials: 'omit',
         referrerPolicy: 'no-referrer',
         signal: abort_controller.signal,
       })
-      clearTimeout(id)
-      return response
     } catch {
-      clearTimeout(id)
       return false
+    } finally {
+      clearTimeout(id)
     }
   }
-  public async post(url: string, body: any, headers?: HeadersInit): Promise<false | Response> {
-    const abort_controller = new AbortController()
-    const id = setTimeout(() => abort_controller.abort(), this.timeout)
-    try {
-      const response = await fetch(new URL(url, this.base), {
-        method: 'POST',
-        headers: {
-          ...headers,
-        },
-        body: new URLSearchParams(body).toString(),
-        redirect: 'manual',
-        credentials: 'omit',
-        referrerPolicy: 'no-referrer',
-        signal: abort_controller.signal,
-      })
-      clearTimeout(id)
-      return response
-    } catch {
-      clearTimeout(id)
-      return false
+
+  private serializeBody(body: RequestBody): string {
+    if (typeof body === 'string') return body
+    if (body instanceof URLSearchParams) return body.toString()
+    const params = new URLSearchParams()
+    for (const [key, value] of Object.entries(body)) {
+      params.append(key, String(value))
     }
+    return params.toString()
+  }
+
+  public async get(url: string, headers?: HeadersInit): Promise<false | Response> {
+    return await this.request(url, {
+      method: 'GET',
+      headers,
+    })
+  }
+
+  public async post(
+    url: string,
+    body: RequestBody,
+    headers?: HeadersInit,
+  ): Promise<false | Response> {
+    return await this.request(url, {
+      method: 'POST',
+      headers,
+      body: this.serializeBody(body),
+    })
   }
 }

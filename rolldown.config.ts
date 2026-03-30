@@ -4,7 +4,6 @@ import { dts } from 'rolldown-plugin-dts'
 export default defineConfig([
   {
     input: './src/main.ts',
-    treeshake: true,
     platform: 'node',
     plugins: [
       dts({
@@ -14,13 +13,9 @@ export default defineConfig([
     ],
     output: [
       {
-        dir: './out',
-        format: 'esm',
+        dir: 'out',
         minify: true,
-        comments: {
-          legal: false,
-        },
-        sourcemap: false,
+        cleanDir: true,
       },
     ],
   },

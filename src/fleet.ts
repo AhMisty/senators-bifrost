@@ -46,12 +46,16 @@ export enum FleetStaytime {
   One = 1,
 }
 
-export type FleetOptions = {
-  cp: number
+export type FleetTarget = {
   galaxy: number
   system: number
   planet: number
   type: number
+}
+
+export type FleetOptions = {
+  origin: number
+  target: FleetTarget
   mission: FleetMission
   speed: FleetSpeed
   staytime: FleetStaytime
@@ -63,11 +67,8 @@ export type FleetOptions = {
 }
 
 export class Fleet {
-  public cp: number
-  public galaxy: number
-  public system: number
-  public planet: number
-  public type: number
+  public origin: number
+  public target: FleetTarget
   public mission: FleetMission
   public speed: FleetSpeed
   public staytime: FleetStaytime
@@ -77,11 +78,8 @@ export class Fleet {
   public ships: Elements
   public token: string
   constructor(options: FleetOptions) {
-    this.cp = options.cp
-    this.galaxy = options.galaxy
-    this.system = options.system
-    this.planet = options.planet
-    this.type = options.type
+    this.origin = options.origin
+    this.target = options.target
     this.mission = options.mission
     this.speed = options.speed
     this.staytime = options.staytime

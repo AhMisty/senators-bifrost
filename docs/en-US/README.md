@@ -82,6 +82,19 @@ operator.onUpdatePlanetShipyard = async ({ planet }) => {
 // Update game data (handles login automatically)
 await operator.update()
 
+// Refresh one planet by ID
+await operator.updatePlanet({ planetId: 1 })
+
+// Or refresh a Planet instance directly
+const planet = operator.planets.map.get(1)
+if (planet) {
+  await operator.updatePlanet({ planet })
+}
+
+// Refresh only one part of a planet when needed
+await operator.updatePlanetBuilding({ planetId: 1 })
+await operator.updatePlanetShipyard({ planetId: 1 })
+
 // Access game data
 console.log(operator)
 ```
@@ -115,11 +128,13 @@ ships.set(210, 99999) // Set ship type 210, quantity 99999
 
 // Create fleet mission
 const fleet = new Fleet({
-  cp: 1, // Starting planet ID
-  galaxy: 1, // Target galaxy
-  system: 1, // Target system
-  planet: 1, // Target planet
-  type: 1, // Planet type: 1=planet
+  origin: 1, // Starting planet ID
+  target: {
+    galaxy: 1, // Target galaxy
+    system: 1, // Target system
+    planet: 1, // Target planet
+    type: 1, // Planet type: 1=planet
+  },
   mission: 15, // Mission type: 15=expedition
   speed: 10, // Speed: 10=fastest
   staytime: 1, // Stay time: 1 hour

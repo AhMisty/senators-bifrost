@@ -82,6 +82,19 @@ operator.onUpdatePlanetShipyard = async ({ planet }) => {
 // 更新游戏数据（自动处理登录）
 await operator.update()
 
+// 按行星 ID 更新单个行星
+await operator.updatePlanet({ planetId: 1 })
+
+// 已经拿到 Planet 实例时，也可以直接传入
+const planet = operator.planets.map.get(1)
+if (planet) {
+  await operator.updatePlanet({ planet })
+}
+
+// 只更新行星的一部分数据
+await operator.updatePlanetBuilding({ planetId: 1 })
+await operator.updatePlanetShipyard({ planetId: 1 })
+
 // 访问游戏数据
 console.log(operator)
 ```
@@ -115,11 +128,13 @@ ships.set(210, 99999) // 设置舰船类型210，数量99999艘
 
 // 创建舰队任务
 const fleet = new Fleet({
-  cp: 1, // 起点星球ID
-  galaxy: 1, // 目标河系
-  system: 1, // 目标星系
-  planet: 1, // 目标星球
-  type: 1, // 星球类型：1=行星
+  origin: 1, // 起点星球 ID
+  target: {
+    galaxy: 1, // 目标河系
+    system: 1, // 目标星系
+    planet: 1, // 目标星球
+    type: 1, // 星球类型：1=行星
+  },
   mission: 15, // 任务类型：15=探险
   speed: 10, // 速度：10=最快
   staytime: 1, // 停留时间：1小时

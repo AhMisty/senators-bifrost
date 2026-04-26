@@ -35,6 +35,14 @@ export type OperatorPostOptions = {
   body: RequestBody
 }
 
+export type UpdatePlanetOptions =
+  | {
+      planetId: number
+    }
+  | {
+      planet: Planet
+    }
+
 export type OperatorEvent = {
   operator: Operator
 }
@@ -64,28 +72,28 @@ export type OperatorFleetInvalidEvent = OperatorFleetEvent & {
 }
 
 export type BuildBuildingOptions = {
-  cp: number
+  planetId: number
   element: number
   count: number
 }
 
 export type BuildResearchOptions = {
-  cp: number
+  planetId: number
   element: number
   count: number
 }
 
 export type CancelResearchOptions = {
-  cp: number
+  planetId: number
 }
 
 export type BuildShipyardOptions = {
-  cp: number
+  planetId: number
   elements: Elements
 }
 
 export type SendMissleOptions = {
-  cp: number
+  origin: number
   galaxy: number
   system: number
   planet: number
@@ -246,36 +254,54 @@ export class Operator {
   }
 
   public onUpdatePlanets?: (event: OperatorEvent) => Promise<void>
-  public onUpdatedPlanets?: (event: OperatorBodyEvent) => Promise<void>
+  public onUpdatedPlanets?: (event: OperatorEvent) => Promise<void>
   public onUpdatePlanetBuilding?: (event: OperatorPlanetEvent) => Promise<void>
   public onUpdatedPlanetBuilding?: (event: OperatorPlanetBodyEvent) => Promise<void>
   public onUpdatePlanetShipyard?: (event: OperatorPlanetEvent) => Promise<void>
   public onUpdatedPlanetShipyard?: (event: OperatorPlanetBodyEvent) => Promise<void>
+
+  public async updatePlanetBuilding(options: UpdatePlanetOptions): Promise<boolean> {
+    const planet = 'planet' in options ? options.planet : this.planets.map.get(options.planetId)
+    if (!planet) return false
+    await this.onUpdatePlanetBuilding?.({ operator: this, planet })
+    const response = await this.get({ url: `/game.php?page=buildings&cp=${planet.id}` })
+    if (!response) return false
+    const result = { failed: false, data: '' }
+    let position = parseQueueBuilding(this, planet, response, 0, result)
+    position = parseBuildBuilding(this, planet, response, position, result)
+    await this.onUpdatedPlanetBuilding?.({ operator: this, planet, body: response })
+    return !result.failed
+  }
+
+  public async updatePlanetShipyard(options: UpdatePlanetOptions): Promise<boolean> {
+    const planet = 'planet' in options ? options.planet : this.planets.map.get(options.planetId)
+    if (!planet) return false
+    await this.onUpdatePlanetShipyard?.({ operator: this, planet })
+    const response = await this.get({ url: `/game.php?page=shipyard&cp=${planet.id}` })
+    if (!response) return false
+    const result = { failed: false, data: '' }
+    let position = parseEnergy(this, planet, response, 0, result)
+    position = parseLimit(this, planet, response, position, result)
+    position = parseQueueShipyard(this, planet, response, position, result)
+    position = parseBuildShipyard(this, planet, response, position, result)
+    await this.onUpdatedPlanetShipyard?.({ operator: this, planet, body: response })
+    return !result.failed
+  }
+
+  public async updatePlanet(options: UpdatePlanetOptions): Promise<boolean> {
+    let flag = await this.updatePlanetBuilding(options)
+    if (!flag) return false
+    flag = await this.updatePlanetShipyard(options)
+    return flag
+  }
+
   public async updatePlanets(): Promise<boolean> {
     await this.onUpdatePlanets?.({ operator: this })
-    const result = {
-      failed: false,
-      data: '',
-    }
     for (const planet of this.planets.map.values()) {
-      await this.onUpdatePlanetBuilding?.({ operator: this, planet })
-      let response = await this.get({ url: `/game.php?page=buildings&cp=${planet.id}` })
-      if (response) {
-        let position = parseQueueBuilding(this, planet, response, 0, result)
-        position = parseBuildBuilding(this, planet, response, position, result)
-        await this.onUpdatedPlanetBuilding?.({ operator: this, planet, body: response })
-      }
-      await this.onUpdatePlanetShipyard?.({ operator: this, planet })
-      response = await this.get({ url: `/game.php?page=shipyard&cp=${planet.id}` })
-      if (response) {
-        let position = parseEnergy(this, planet, response, 0, result)
-        position = parseLimit(this, planet, response, position, result)
-        position = parseQueueShipyard(this, planet, response, position, result)
-        position = parseBuildShipyard(this, planet, response, position, result)
-        await this.onUpdatedPlanetShipyard?.({ operator: this, planet, body: response })
-      }
+      const flag = await this.updatePlanet({ planet })
+      if (!flag) return false
     }
-    await this.onUpdatedPlanets?.({ operator: this, body: result.data })
+    await this.onUpdatedPlanets?.({ operator: this })
     return true
   }
 
@@ -289,9 +315,9 @@ export class Operator {
   }
 
   public async buildBuilding(options: BuildBuildingOptions): Promise<boolean> {
-    const { cp, element, count } = options
+    const { planetId, element, count } = options
     const response = await this.post({
-      url: `/game.php?page=buildings&cp=${cp}`,
+      url: `/game.php?page=buildings&cp=${planetId}`,
       body: {
         cmd: 'insert',
         building: element,
@@ -299,7 +325,7 @@ export class Operator {
       },
     })
     if (!response) return false
-    const planet = this.planets.map.get(cp)
+    const planet = this.planets.map.get(planetId)
     if (!planet) return false
     const result = { failed: false, data: '' }
     let position = parseQueueBuilding(this, planet, response, 0, result)
@@ -308,9 +334,9 @@ export class Operator {
   }
 
   public async buildResearch(options: BuildResearchOptions): Promise<boolean> {
-    const { cp, element, count } = options
+    const { planetId, element, count } = options
     const response = await this.post({
-      url: `/game.php?page=research&cp=${cp}`,
+      url: `/game.php?page=research&cp=${planetId}`,
       body: {
         cmd: 'insert',
         tech: element,
@@ -325,9 +351,9 @@ export class Operator {
   }
 
   public async cancelResearch(options: CancelResearchOptions): Promise<boolean> {
-    const { cp } = options
+    const { planetId } = options
     const response = await this.post({
-      url: `/game.php?page=research&cp=${cp}`,
+      url: `/game.php?page=research&cp=${planetId}`,
       body: {
         cmd: 'cancel',
       },
@@ -340,13 +366,13 @@ export class Operator {
   }
 
   public async buildShipyard(options: BuildShipyardOptions): Promise<boolean> {
-    const { cp, elements } = options
+    const { planetId, elements } = options
     const response = await this.post({
-      url: `/game.php?page=shipyard&cp=${cp}`,
+      url: `/game.php?page=shipyard&cp=${planetId}`,
       body: elements.toString('fmenge[', ']'),
     })
     if (!response) return false
-    const planet = this.planets.map.get(cp)
+    const planet = this.planets.map.get(planetId)
     if (!planet) return false
     const result = { failed: false, data: '' }
     let position = parseEnergy(this, planet, response, 0, result)
@@ -357,9 +383,9 @@ export class Operator {
   }
 
   public async sendMissle(options: SendMissleOptions): Promise<boolean> {
-    const { cp, galaxy, system, planet, type, missle, target } = options
+    const { origin, galaxy, system, planet, type, missle, target } = options
     const response = await this.post({
-      url: `/game.php?page=fleetMissile&cp=${cp}`,
+      url: `/game.php?page=fleetMissile&cp=${origin}`,
       body: {
         galaxy,
         system,
@@ -385,7 +411,7 @@ export class Operator {
     await this.onSendFleet?.({ operator: this, fleet })
     await this.onSendFleetStep1?.({ operator: this, fleet })
     let response = await this.post({
-      url: `/game.php?page=fleetStep1&cp=${fleet.cp}`,
+      url: `/game.php?page=fleetStep1&cp=${fleet.origin}`,
       body: fleet.ships.toString('ship'),
     })
     if (!response) return false
@@ -404,9 +430,19 @@ export class Operator {
       return false
     }
     await this.onSendFleetStep2?.({ operator: this, fleet })
+    const body = {
+      ...fleet.target,
+      mission: fleet.mission,
+      speed: fleet.speed,
+      staytime: fleet.staytime,
+      metal: fleet.metal,
+      crystal: fleet.crystal,
+      deuterium: fleet.deuterium,
+      token: fleet.token,
+    }
     response = await this.post({
-      url: `/game.php?page=fleetStep2&cp=${fleet.cp}`,
-      body: fleet,
+      url: `/game.php?page=fleetStep2&cp=${fleet.origin}`,
+      body,
     })
     if (!response) return false
     parseFleetAllyContent(fleet, response, 0, result)
@@ -420,8 +456,8 @@ export class Operator {
     }
     await this.onSendFleetStep3?.({ operator: this, fleet })
     response = await this.post({
-      url: `/game.php?page=fleetStep3&cp=${fleet.cp}`,
-      body: fleet,
+      url: `/game.php?page=fleetStep3&cp=${fleet.origin}`,
+      body,
     })
     if (!response) return false
     parseFleetAllyContent(fleet, response, 0, result)

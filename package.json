@@ -1,6 +1,6 @@
 {
   "name": "@senators/bifrost",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "private": false,
   "description": "A powerful TypeScript library for interacting with OGame game servers, making your interstellar journey easier!",
   "keywords": [

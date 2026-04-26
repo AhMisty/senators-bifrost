@@ -1,6 +1,6 @@
 import { Elements } from './elements'
 
-const enum FleetMission {
+export enum FleetMission {
   /** 攻击 */
   Attack = 1,
   /** 联盟 */
@@ -29,7 +29,7 @@ const enum FleetMission {
   Warexpedit = 18,
 }
 
-const enum FleetSpeed {
+export enum FleetSpeed {
   One = 1,
   Two = 2,
   Three = 3,
@@ -42,7 +42,7 @@ const enum FleetSpeed {
   Ten = 10,
 }
 
-const enum FleetStaytime {
+export enum FleetStaytime {
   One = 1,
 }
 

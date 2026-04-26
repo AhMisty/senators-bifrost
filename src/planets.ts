@@ -2,7 +2,7 @@ import { Coordinate } from './coordinate'
 import { Elements } from './elements'
 import { Queue } from './queue'
 
-export const enum PlanetType {
+export enum PlanetType {
   Planet = 1,
   Debris = 2,
   Moon = 3,

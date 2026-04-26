@@ -1,4 +1,5 @@
 type RequestBody = string | URLSearchParams | Readonly<Record<string, unknown>>
+type RequestHeaders = RequestInit['headers']
 
 export class Courier {
   public base: string
@@ -35,7 +36,7 @@ export class Courier {
     return params.toString()
   }
 
-  public async get(url: string, headers?: HeadersInit): Promise<false | Response> {
+  public async get(url: string, headers?: RequestHeaders): Promise<false | Response> {
     return await this.request(url, {
       method: 'GET',
       headers,
@@ -45,7 +46,7 @@ export class Courier {
   public async post(
     url: string,
     body: RequestBody,
-    headers?: HeadersInit,
+    headers?: RequestHeaders,
   ): Promise<false | Response> {
     return await this.request(url, {
       method: 'POST',

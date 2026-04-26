@@ -28,8 +28,8 @@
   ],
   "exports": {
     ".": {
-      "types": "./out/main.d.ts",
-      "default": "./out/main.js"
+      "types": "./out/index.d.ts",
+      "default": "./out/index.js"
     }
   },
   "devDependencies": {

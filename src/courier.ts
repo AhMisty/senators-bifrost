@@ -1,12 +1,28 @@
-type RequestBody = string | URLSearchParams | Readonly<Record<string, unknown>>
-type RequestHeaders = RequestInit['headers']
+export type RequestBody = string | URLSearchParams | object
+export type RequestHeaders = RequestInit['headers']
+
+export type CourierOptions = {
+  base: string
+  timeout?: number
+}
+
+export type CourierGetOptions = {
+  url: string
+  headers?: RequestHeaders
+}
+
+export type CourierPostOptions = {
+  url: string
+  body: RequestBody
+  headers?: RequestHeaders
+}
 
 export class Courier {
   public base: string
   public timeout: number
-  constructor(base: string, timeout: number) {
-    this.base = base
-    this.timeout = timeout
+  constructor(options: CourierOptions) {
+    this.base = options.base
+    this.timeout = options.timeout ?? 10000
   }
   private async request(url: string, init: RequestInit): Promise<false | Response> {
     const abort_controller = new AbortController()
@@ -36,22 +52,18 @@ export class Courier {
     return params.toString()
   }
 
-  public async get(url: string, headers?: RequestHeaders): Promise<false | Response> {
-    return await this.request(url, {
+  public async get(options: CourierGetOptions): Promise<false | Response> {
+    return await this.request(options.url, {
       method: 'GET',
-      headers,
+      headers: options.headers,
     })
   }
 
-  public async post(
-    url: string,
-    body: RequestBody,
-    headers?: RequestHeaders,
-  ): Promise<false | Response> {
-    return await this.request(url, {
+  public async post(options: CourierPostOptions): Promise<false | Response> {
+    return await this.request(options.url, {
       method: 'POST',
-      headers,
-      body: this.serializeBody(body),
+      headers: options.headers,
+      body: this.serializeBody(options.body),
     })
   }
 }

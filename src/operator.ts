@@ -22,8 +22,7 @@ export type OperatorOptions = {
   username: string
   password: string
   courier: Courier
-  config?: Config
-  ip?: string
+  config: Config
 }
 
 export type OperatorGetOptions = {
@@ -123,8 +122,7 @@ export class Operator {
     this.username = options.username
     this.password = options.password
     this.courier = options.courier
-    this.config = options.config ?? new Config()
-    this.ip = options.ip ?? ''
+    this.config = options.config
   }
 
   public onLogin?: (event: OperatorEvent) => Promise<void>

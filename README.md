@@ -247,5 +247,5 @@ If you have any questions or suggestions, please submit them via [GitHub Issues]
 ---
 
 <div align="center">
-  <p>Built with <a href="https://github.com/rolldown/rolldown">Rolldown</a> | © 2025 Bifrost Project</p>
+  <p>Built with <a href="https://github.com/rolldown/rolldown">Rolldown</a> | © 2026 Bifrost Project</p>
 </div>

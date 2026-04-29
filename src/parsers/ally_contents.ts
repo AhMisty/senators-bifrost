@@ -1,15 +1,12 @@
-import { Fleet } from '../fleet'
 import { indexOfSlice } from '../utils/indexOf'
 
-export const parseFleetToken = (
-  fleet: Fleet,
+export const parseAllyContent = (
   body: string,
   position: number,
   result: { failed: boolean; data: string },
 ): number => {
-  position = indexOfSlice(body, position, result, 'token" value="', '"')
+  position = indexOfSlice(body, position, result, 'ally_contents">', '</div>')
   if (result.failed) return position
-  fleet.token = result.data
 
   return position
 }

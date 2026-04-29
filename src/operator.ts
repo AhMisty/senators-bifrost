@@ -3,6 +3,7 @@ import { Elements } from './elements'
 import { Planet, Planets } from './planets'
 import { Queue } from './queue'
 import { Fleet } from './fleet'
+import { Missle } from './missle'
 import { Config } from './config'
 import { parseId } from './parsers/id'
 import { parseResource } from './parsers/resource'
@@ -15,7 +16,8 @@ import { parseQueueShipyard } from './parsers/queue/shipyard'
 import { parseBuildShipyard } from './parsers/build/shipyard'
 import { parseEnergy } from './parsers/energy'
 import { parseLimit } from './parsers/limit'
-import { parseFleetAllyContent, parseFleetToken } from './parsers/fleet'
+import { parseFleetToken } from './parsers/fleet'
+import { parseAllyContent } from './parsers/ally_contents'
 
 export type OperatorOptions = {
   universe: number
@@ -70,6 +72,14 @@ export type OperatorFleetInvalidEvent = OperatorFleetEvent & {
   allyContent: string
 }
 
+export type OperatorMissleEvent = OperatorEvent & {
+  missle: Missle
+}
+
+export type OperatorMissleInvalidEvent = OperatorMissleEvent & {
+  allyContent: string
+}
+
 export type BuildBuildingOptions = {
   planetId: number
   element: number
@@ -89,16 +99,6 @@ export type CancelResearchOptions = {
 export type BuildShipyardOptions = {
   planetId: number
   elements: Elements
-}
-
-export type SendMissleOptions = {
-  origin: number
-  galaxy: number
-  system: number
-  planet: number
-  type: number
-  missle: number
-  target: number
 }
 
 export class Operator {
@@ -265,7 +265,9 @@ export class Operator {
     const response = await this.get({ url: `/game.php?page=buildings&cp=${planet.id}` })
     if (!response) return false
     const result = { failed: false, data: '' }
-    let position = parseQueueBuilding(this, planet, response, 0, result)
+    let position = parseEnergy(this, planet, response, 0, result)
+    position = parseLimit(this, planet, response, position, result)
+    position = parseQueueBuilding(this, planet, response, position, result)
     position = parseBuildBuilding(this, planet, response, position, result)
     await this.onUpdatedPlanetBuilding?.({ operator: this, planet, body: response })
     return !result.failed
@@ -373,27 +375,32 @@ export class Operator {
     const planet = this.planets.map.get(planetId)
     if (!planet) return false
     const result = { failed: false, data: '' }
-    let position = parseEnergy(this, planet, response, 0, result)
-    position = parseLimit(this, planet, response, position, result)
-    position = parseQueueShipyard(this, planet, response, position, result)
+    let position = parseQueueShipyard(this, planet, response, 0, result)
     position = parseBuildShipyard(this, planet, response, position, result)
     return !result.failed
   }
 
-  public async sendMissle(options: SendMissleOptions): Promise<boolean> {
-    const { origin, galaxy, system, planet, type, missle, target } = options
+  public onSendMissle?: (event: OperatorMissleEvent) => Promise<void>
+  public onSentMissle?: (event: OperatorMissleEvent) => Promise<void>
+  public onSendMissleInvalid?: (event: OperatorMissleInvalidEvent) => Promise<void>
+  public async sendMissle(missle: Missle): Promise<boolean> {
+    await this.onSendMissle?.({ operator: this, missle })
     const response = await this.post({
-      url: `/game.php?page=fleetMissile&cp=${origin}`,
+      url: `/game.php?page=fleetMissile&cp=${missle.origin}`,
       body: {
-        galaxy,
-        system,
-        planet,
-        type,
-        SendMI: missle,
-        Target: target,
+        ...missle.target,
+        SendMI: missle.count,
+        Target: missle.firstTarget,
       },
     })
     if (!response) return false
+    const result = { failed: false, data: '' }
+    parseAllyContent(response, 0, result)
+    if (result.failed || result.data.indexOf('<b>') === -1) {
+      await this.onSendMissleInvalid?.({ operator: this, missle, allyContent: result.data })
+      return false
+    }
+    await this.onSentMissle?.({ operator: this, missle })
     return true
   }
 
@@ -419,7 +426,7 @@ export class Operator {
     }
     parseFleetToken(fleet, response, 0, result)
     if (result.failed) {
-      parseFleetAllyContent(fleet, response, 0, result)
+      parseAllyContent(response, 0, result)
       await this.onSendFleetStep1Invalid?.({
         operator: this,
         fleet,
@@ -443,7 +450,7 @@ export class Operator {
       body,
     })
     if (!response) return false
-    parseFleetAllyContent(fleet, response, 0, result)
+    parseAllyContent(response, 0, result)
     if (!result.failed) {
       await this.onSendFleetStep2Invalid?.({
         operator: this,
@@ -458,7 +465,7 @@ export class Operator {
       body,
     })
     if (!response) return false
-    parseFleetAllyContent(fleet, response, 0, result)
+    parseAllyContent(response, 0, result)
     if (!result.failed) {
       await this.onSendFleetStep3Invalid?.({
         operator: this,

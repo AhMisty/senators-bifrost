@@ -104,7 +104,16 @@ console.log(operator)
 Here's a complete example of how to send an expedition fleet:
 
 ```typescript
-import { Operator, Courier, Config, Fleet, Elements } from '@senators/bifrost'
+import {
+  Operator,
+  Courier,
+  Config,
+  Fleet,
+  Elements,
+  FleetMission,
+  FleetSpeed,
+  FleetStaytime,
+} from '@senators/bifrost'
 
 // Initialize configuration and client
 const config = new Config()
@@ -135,9 +144,9 @@ const fleet = new Fleet({
     planet: 1, // Target planet
     type: 1, // Planet type: 1=planet
   },
-  mission: 15, // Mission type: 15=expedition
-  speed: 10, // Speed: 10=fastest
-  staytime: 1, // Stay time: 1 hour
+  mission: FleetMission.Expedit, // Mission type: deep-space expedition
+  speed: FleetSpeed.Ten, // Speed: fastest
+  staytime: FleetStaytime.One, // Stay time: 1 hour
   metal: 0, // Metal: 0
   crystal: 0, // Crystal: 0
   deuterium: 0, // Deuterium: 0
@@ -162,21 +171,21 @@ setInterval(
 
 ### 🎯 Mission Types (FleetMission)
 
-| ID  | Type       | Description           |
-| --- | ---------- | --------------------- |
-| 1   | Attack     | Attack target         |
-| 2   | Federation | Alliance mission      |
-| 3   | Transport  | Transport resources   |
-| 4   | Deploy     | Deploy fleet          |
-| 5   | Hold       | Station in orbit      |
-| 6   | Spy        | Espionage mission     |
-| 7   | Colonize   | Establish colony      |
-| 8   | Recycle    | Recycle debris        |
-| 9   | Destroy    | Destroy moon          |
-| 10  | Missile    | Missile attack        |
-| 11  | Expedition | Expedition mission    |
-| 15  | Deep Space | Deep space expedition |
-| 18  | Trade      | Trade mission         |
+| ID  | Member                    | Description           |
+| --- | ------------------------- | --------------------- |
+| 1   | `FleetMission.Attack`     | Attack target         |
+| 2   | `FleetMission.Federation` | Alliance mission      |
+| 3   | `FleetMission.Transport`  | Transport resources   |
+| 4   | `FleetMission.Deploy`     | Deploy fleet          |
+| 5   | `FleetMission.Hold`       | Station in orbit      |
+| 6   | `FleetMission.Espionage`  | Espionage mission     |
+| 7   | `FleetMission.Colony`     | Establish colony      |
+| 8   | `FleetMission.Harvest`    | Harvest resources     |
+| 9   | `FleetMission.Destroy`    | Destroy moon          |
+| 10  | `FleetMission.Missile`    | Missile attack        |
+| 11  | `FleetMission.Expdm`      | Scout mission         |
+| 15  | `FleetMission.Expedit`    | Deep-space expedition |
+| 18  | `FleetMission.Warexpedit` | Trade mission         |
 
 ## 🧩 Core Modules
 

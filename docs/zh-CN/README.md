@@ -104,7 +104,16 @@ console.log(operator)
 以下是一个完整的舰队任务示例，展示如何发送探险舰队：
 
 ```typescript
-import { Operator, Courier, Config, Fleet, Elements } from '@senators/bifrost'
+import {
+  Operator,
+  Courier,
+  Config,
+  Fleet,
+  Elements,
+  FleetMission,
+  FleetSpeed,
+  FleetStaytime,
+} from '@senators/bifrost'
 
 // 初始化配置和客户端
 const config = new Config()
@@ -135,9 +144,9 @@ const fleet = new Fleet({
     planet: 1, // 目标星球
     type: 1, // 星球类型：1=行星
   },
-  mission: 15, // 任务类型：15=探险
-  speed: 10, // 速度：10=最快
-  staytime: 1, // 停留时间：1小时
+  mission: FleetMission.Expedit, // 任务类型：探险
+  speed: FleetSpeed.Ten, // 速度：最快
+  staytime: FleetStaytime.One, // 停留时间：1小时
   metal: 0, // 金属：0
   crystal: 0, // 晶体：0
   deuterium: 0, // 重氢：0
@@ -162,21 +171,21 @@ setInterval(
 
 ### 🎯 任务类型 (FleetMission)
 
-| 值  | 类型 | 描述           |
-| --- | ---- | -------------- |
-| 1   | 攻击 | 对目标发起攻击 |
-| 2   | 联盟 | 联盟任务       |
-| 3   | 运输 | 运输资源       |
-| 4   | 部署 | 部署舰队       |
-| 5   | 持留 | 在轨道停留     |
-| 6   | 间谍 | 间谍探测       |
-| 7   | 殖民 | 建立殖民地     |
-| 8   | 收集 | 收集资源       |
-| 9   | 摧毁 | 摧毁月球       |
-| 10  | 导弹 | 发射导弹       |
-| 11  | 侦察 | 侦察任务       |
-| 15  | 探险 | 深空探险       |
-| 18  | 贸易 | 贸易任务       |
+| 值  | 枚举成员                  | 描述           |
+| --- | ------------------------- | -------------- |
+| 1   | `FleetMission.Attack`     | 对目标发起攻击 |
+| 2   | `FleetMission.Federation` | 联盟任务       |
+| 3   | `FleetMission.Transport`  | 运输资源       |
+| 4   | `FleetMission.Deploy`     | 部署舰队       |
+| 5   | `FleetMission.Hold`       | 在轨道停留     |
+| 6   | `FleetMission.Espionage`  | 间谍探测       |
+| 7   | `FleetMission.Colony`     | 建立殖民地     |
+| 8   | `FleetMission.Harvest`    | 收集资源       |
+| 9   | `FleetMission.Destroy`    | 摧毁月球       |
+| 10  | `FleetMission.Missile`    | 导弹任务       |
+| 11  | `FleetMission.Expdm`      | 侦察任务       |
+| 15  | `FleetMission.Expedit`    | 深空探险       |
+| 18  | `FleetMission.Warexpedit` | 贸易任务       |
 
 ## 🧩 核心模块
 

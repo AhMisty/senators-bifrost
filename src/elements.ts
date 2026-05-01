@@ -1,5 +1,5 @@
 export class Elements {
-  private readonly map: Map<number, number>
+  public readonly map: Map<number, number>
   constructor(elements?: Elements) {
     this.map = new Map(elements?.map)
   }

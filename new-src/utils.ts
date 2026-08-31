@@ -20,6 +20,18 @@ export const extractToken = (headers: Headers, cookieName: string): string | nul
 // 解析数字：去掉德语式千分位点（1.234 → 1234）后 parseInt；无法解析返回 0
 export const parseNumber = (value: string): number => parseInt(value.replaceAll('.', '')) || 0
 
+// 解析页面 shortly_number 缩写格式（"1,2 K" → 1200、"219 M"、"−24"）；逗号是小数点，K/M/B 为千/百万/十亿倍率。
+// 用于读取 #current_xxx 元素的可见文本（游戏 JS 同源格式）；name 属性则是点千分位格式，用 parseNumber 处理。
+const SHORT_FACTORS: Record<string, number> = { K: 1e3, M: 1e6, B: 1e9 }
+
+export const parseShortNumber = (value: string): number => {
+  const match = value.trim().match(/^(-?[\d.,]+)\s*([KMB])?$/i)
+  if (!match) return parseNumber(value)
+  const factor = match[2] ? SHORT_FACTORS[match[2].toUpperCase()] : 1
+  const num = match[1].includes(',') ? parseFloat(match[1].replaceAll(',', '.')) : parseNumber(match[1])
+  return factor === 1 ? num : Math.round(num * factor)
+}
+
 // 从页面 script 文本中提取第一个匹配 pattern 的内容；有捕获组时返回第 1 组，否则返回整段匹配；无匹配返回 null
 export const extractFromScripts = (root: HTMLElement, pattern: RegExp): string | null => {
   for (const script of root.querySelectorAll('script')) {

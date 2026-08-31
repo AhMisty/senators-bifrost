@@ -26,9 +26,9 @@ export const parseControl = (html: string): ControlData => {
     container: resource('container'),
   }
 
-  // 元素 id 序列：前 161 个 gebaeude 图标。
-  // 槽位 9/10/11 是「每小时产量」图标，其图片复用资源图标（本主题为 901/902/903），
-  // 必须重映射为 931/932/933，否则总量会覆盖 901/902/903 的资源数值。
+  // 元素 id 序列：前 161 个 gebaeude 图标（9 资源 → 3 每小时产量 → 23 建筑 → 66 舰船 → 60 防御，源码验证）。
+  // 槽位 9/10/11 是「每小时产量」列，图片复用资源图标（901/902/903），必须重映射为 931/932/933
+  // 作为自定义键（New-Star 无此元素 id），否则总量会覆盖 901/902/903 的资源储量。
   const icons = root
     .querySelectorAll('img[src*="gebaeude/"]')
     .slice(0, 161)

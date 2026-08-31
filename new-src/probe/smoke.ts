@@ -69,7 +69,8 @@ const researchHtml = `<!DOCTYPE html><html><head></head><body><div id="content">
 </div></body></html>`
 
 const buildingsHtml = `<!DOCTYPE html><html><head></head><body><div id="content">
-  <div id="current_energy" name="-24"></div>
+  <!-- name 属性是模板产物 2×产能+消耗（-48），文本才是净能源（-24）；断言锁定读文本 -->
+  <div id="current_energy" name="-48" data-real="-48">-24</div>
   <script type="text/javascript">
     resourceTicker({ available: "219498818.027778", limit: [0, "54000"], production: 0 });
     resourceTicker({ available: "299116062", limit: [0, "55000"], production: 0 });
@@ -81,7 +82,8 @@ const buildingsHtml = `<!DOCTYPE html><html><head></head><body><div id="content"
 </div></body></html>`
 
 const shipyardHtml = `<!DOCTYPE html><html><head></head><body><div id="content">
-  <div id="current_energy" name="123"></div>
+  <!-- 文本为 shortly_number 缩写格式（1,2 K = 1200），验证 parseShortNumber -->
+  <div id="current_energy" name="246" data-real="246">1,2 K</div>
   <script type="text/javascript">
     resourceTicker({ available: "10", limit: [0, "54000"], production: 0 });
     resourceTicker({ available: "10", limit: [0, "55000"], production: 0 });
@@ -238,8 +240,8 @@ ok(
 )
 const shipyard = await game.getShipyard(15492)
 ok(
-  '船坞数量与能源',
-  shipyard.available.get(210) === 0 && shipyard.available.get(212) === 5 && shipyard.energy === 123,
+  '船坞数量与能源(缩写格式)',
+  shipyard.available.get(210) === 0 && shipyard.available.get(212) === 5 && shipyard.energy === 1200,
 )
 
 // 动作：建造成功 / 科研失败（ally 错误块）

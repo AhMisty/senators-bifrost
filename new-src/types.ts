@@ -55,6 +55,7 @@ export type QueueData = {
 }
 
 export type BuildingsData = {
+  // 净能源（产能 − 消耗，可为负）
   energy: number
   limits: Limits
   queue: QueueData
@@ -69,6 +70,7 @@ export type ResearchData = {
 }
 
 export type ShipyardData = {
+  // 净能源（产能 − 消耗，可为负）
   energy: number
   limits: Limits
   queue: QueueData

@@ -1,16 +1,19 @@
 // 建筑/科研/船坞页面共用的解析片段：能源、存储上限、队列块、DatatList 元素映射
 import type { HTMLElement } from 'node-html-parser'
 import type { ElementMap, Limits, QueueData } from '../types'
-import { extractJsObjectFromScripts, parseNumber } from '../utils'
+import { extractJsObjectFromScripts, parseNumber, parseShortNumber } from '../utils'
 
-// 当前能源（941）：值在 #current_energy 的 name 属性（New-Star 主题惯例：数值放 name）
+// 净能源（产能 − 消耗，可为负）：读 #current_energy 的可见文本（shortly_number 缩写格式，游戏 JS 同源）。
+// 注意 name/data-real 属性是模板产物 max+used（2×产能+消耗），只在产能为 0 时才等于净能源，不可用。
+// New-Star 无 941 元素 id；能源产能是元素 911（在 control 的 elements 映射中）。
 export const parseEnergy = (root: HTMLElement): number => {
   const el = root.querySelector('#current_energy')
   if (!el) throw new Error('页面缺少 #current_energy 元素（结构异常）')
-  return parseNumber(el.getAttribute('name') ?? '')
+  return parseShortNumber(el.textContent)
 }
 
-// 存储上限（951/952/953）：resourceTicker JS 中按 金属/晶体/重氢 顺序出现 3 次 limit: [0, "n"]
+// 仓库容量（metal/crystal/deuterium 的 *_max 列）：resourceTicker JS 按 金属/晶体/重氢 顺序 3 次调用，
+// 每次带 limit: [0, "容量"]，limit[1] 即容量（New-Star 无 951/952/953 元素 id；存储建筑为 22/23/24）
 export const parseLimits = (root: HTMLElement): Limits => {
   for (const script of root.querySelectorAll('script')) {
     const matches = [...script.textContent.matchAll(/limit:\s*\[\s*0\s*,\s*"(\d+)"\s*\]/g)]

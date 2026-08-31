@@ -3,8 +3,9 @@ import type { HTMLElement } from 'node-html-parser'
 import type { ElementMap, Limits, QueueData } from '../types'
 import { extractJsObjectFromScripts, parseNumber, parseShortNumber } from '../utils'
 
-// 净能源（产能 − 消耗，可为负）：读 #current_energy 的可见文本（shortly_number 缩写格式，游戏 JS 同源）。
-// 注意 name/data-real 属性是模板产物 max+used（2×产能+消耗），只在产能为 0 时才等于净能源，不可用。
+// 净能源（产能 − 消耗，可为负）：读 #current_energy 的可见文本（游戏 JS 同源）。
+// name/data-real 属性是模板产物 max+used（2×产能+消耗），只在产能为 0 时才等于净能源，不可用。
+// 文本为 shortly_number 缩写格式（如 "1,2 K"），能源量级 <1000 时无缩写即精准；页面不提供净能源的精准原值。
 // New-Star 无 941 元素 id；能源产能是元素 911（在 control 的 elements 映射中）。
 export const parseEnergy = (root: HTMLElement): number => {
   const el = root.querySelector('#current_energy')

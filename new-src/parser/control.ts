@@ -16,9 +16,12 @@ export const parseControl = (html: string): ControlData => {
   if (!playerIdText) throw new Error('页面缺少玩家 id（Playercard 标记缺失）')
   const playerId = Number(playerIdText)
 
-  // 特殊资源（921-924）：值在 #current_xxx 元素的 name 属性
-  const resource = (name: string) =>
-    parseNumber(root.querySelector(`#current_${name}`)?.getAttribute('name') ?? '')
+  // 特殊资源（921-924）：优先读 data-real（精准原值，无格式化）；name 是 round 显示值（点千分位），仅作兜底
+  const resource = (name: string) => {
+    const el = root.querySelector(`#current_${name}`)
+    const dataReal = el?.getAttribute('data-real')
+    return dataReal ? Math.round(parseFloat(dataReal)) : parseNumber(el?.getAttribute('name') ?? '')
+  }
   const resources = {
     darkmatter: resource('darkmatter'),
     antimatter: resource('antimatter'),
@@ -36,7 +39,8 @@ export const parseControl = (html: string): ControlData => {
   if (icons.length < 161 || icons.some(Number.isNaN))
     throw new Error(`元素图标数量异常（${icons.length}/161）`)
 
-  // 总量列：#sigma 列内的 imper_block_td 单元格，与图标序列一一对应
+  // 总量列：#sigma 列内的 imper_block_td 单元格，与图标序列一一对应。
+  // 注意：单元格是模板渲染的 round 显示值（点千分位），页面不提供精准原值，属页面客观限制。
   const totals = root.querySelector('#sigma')?.querySelectorAll('.imper_block_td').slice(0, 161)
   if (!totals || totals.length < 161) throw new Error('sigma 总量单元格数量异常')
   const production = {

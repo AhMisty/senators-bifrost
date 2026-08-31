@@ -58,7 +58,8 @@ const controlHtml = `<!DOCTYPE html><html><head><title>全局面板</title></hea
   <div id="res_block_darkmatter"><span class='colore921' id="current_darkmatter" name="1.152" data-real="1152">1,2&nbsp;K</span></div>
   <span id="current_antimatter" name="66"></span>
   <span id="current_stardust" name="7"></span>
-  <span id="current_container" name="0"></span>
+  <!-- data-real 与 name 语义不同（3.9 vs 3）：断言锁定读精准值 data-real -->
+  <span id="current_container" name="3" data-real="3.9"></span>
 </div></body></html>`
 
 // research：DatatList 含尾随逗号（验证清洗逻辑）；队列含 1 项；有进度条
@@ -168,11 +169,11 @@ ok('token 已写入', game.token === 'tok1')
 const control = await game.getControl()
 ok('玩家 id', control.playerId === 773)
 ok(
-  '特殊资源',
+  '特殊资源(读 data-real 精准值)',
   control.resources.darkmatter === 1152 &&
     control.resources.antimatter === 66 &&
     control.resources.stardust === 7 &&
-    control.resources.container === 0,
+    control.resources.container === 4,
 )
 ok('元素映射(158 真实元素)', control.elements.size === 158 && control.elements.get(901) === 1 && !control.elements.has(931))
 ok(

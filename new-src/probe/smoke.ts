@@ -1,8 +1,7 @@
 // 冒烟测试：注入 mock fetch + 与真实页面（ol.lstyxl.com 的 New-Star 主题）结构等价的合成 HTML，
-// 无网络验证 GameClient 全流程：登录、状态读取、会话过期自动重登重试、全部动作协议与成功/失败判定。
+// 无网络验证 Account 全流程：登录、状态读取、会话过期自动重登重试、全部动作协议与成功/失败判定。
 // 运行：npx tsx new-src/probe/smoke.ts
-import { GameClient } from '../session'
-import { Client } from '../client'
+import { Account } from '../account'
 import type { Fetch } from '../client'
 import { FleetMission, FleetSpeed, FleetStaytime } from '../fleet'
 
@@ -132,7 +131,9 @@ const mockFetch: Fetch = async (input, init) => {
   }
   if (url.includes('page=research') && method === 'POST') {
     // buildResearch 用于验证失败路径；cancelResearch 走成功路径
-    return String(init?.body ?? '').includes('cmd=cancel') ? html(buildSuccessHtml) : html(buildFailHtml)
+    return String(init?.body ?? '').includes('cmd=cancel')
+      ? html(buildSuccessHtml)
+      : html(buildFailHtml)
   }
   if (url.includes('page=buildings') && method === 'GET') return html(buildingsHtml)
   if (url.includes('page=buildings') && method === 'POST') return html(buildSuccessHtml)
@@ -147,12 +148,13 @@ const mockFetch: Fetch = async (input, init) => {
 }
 
 // ---------- 测试 ----------
-// 注入自定义 fetch 需先构造带 mock fetch 的 Client，再整体注入（AccountOptions 的判别联合只收 client 或 base）
-const game = new GameClient({
-  client: new Client({ base: 'https://ol.lstyxl.com', fetch: mockFetch }),
+// fetch 是传输层唯一注入点，直接平铺在 AccountOptions 上
+const game = new Account({
+  base: 'https://ol.lstyxl.com',
   universe: 1,
   username: 'user',
   password: 'pass',
+  fetch: mockFetch,
 })
 
 // 登录
@@ -230,7 +232,10 @@ ok(
     buildings.limits.crystal === 55000 &&
     buildings.limits.deuterium === 56000,
 )
-ok('建筑队列(空)与进度', buildings.queue.items.length === 0 && Math.abs(buildings.queue.progress - 3.067) < 0.001)
+ok(
+  '建筑队列(空)与进度',
+  buildings.queue.items.length === 0 && Math.abs(buildings.queue.progress - 3.067) < 0.001,
+)
 const shipyard = await game.getShipyard(15492)
 ok(
   '船坞数量与能源',

@@ -5,7 +5,7 @@
 import { readFileSync, existsSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { GameClient } from '../session'
+import { Account } from '../account'
 import { parseControl } from '../parser/control'
 import { parseResearch } from '../parser/research'
 import { parseBuildings } from '../parser/buildings'
@@ -27,7 +27,7 @@ const fixture = (name: string) => {
   return readFileSync(path, 'utf8')
 }
 
-const game = new GameClient({ base: BASE, universe: UNIVERSE, username: USER, password: PASSWORD })
+const game = new Account({ base: BASE, universe: UNIVERSE, username: USER, password: PASSWORD })
 const login = await game.login()
 if (!login.ok) {
   console.error('登录失败:', login.reason, 'status:', login.response.status)

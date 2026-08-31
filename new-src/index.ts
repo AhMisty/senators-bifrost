@@ -1,10 +1,9 @@
-export * from './client'
+// 公开 API：单一入口 Account（client.ts 为内部 HTTP 层，不导出）
 export * from './account'
 export * from './constant'
 export * from './utils'
 export * from './types'
 export * from './fleet'
-export * from './session'
 export * from './parser/common'
 export * from './parser/control'
 export * from './parser/research'

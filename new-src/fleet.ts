@@ -1,4 +1,4 @@
-// 舰队/导弹相关枚举与选项类型（数值为服务器协议值，移植自旧 src/fleet.ts，不可随意更改）
+// 舰队/导弹相关枚举与选项类型（数值为服务器协议值，不可随意更改）
 import type { ElementMap } from './types'
 
 export enum FleetMission {

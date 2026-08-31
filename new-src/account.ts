@@ -20,7 +20,7 @@ import { parseBuildings } from './parser/buildings'
 import { parseControl } from './parser/control'
 import { parseResearch } from './parser/research'
 import { parseShipyard } from './parser/shipyard'
-import { checkBuildAction, checkFleetStep, checkMissle, extractAllyContents } from './parser/action'
+import { checkAllyError, checkMissle, extractAllyContents } from './parser/action'
 import { parseFleetToken } from './parser/fleet'
 
 export type AccountOptions = {
@@ -71,7 +71,7 @@ export type BuildShipyardOptions = {
 }
 
 export class Account {
-  // HTTP 层内部持有；token 直接存本类字段，自动重登后实时生效
+  // token 存本类字段，自动重登后实时生效
   private readonly client: Client
   public readonly universe: number
   public readonly username: string
@@ -105,7 +105,6 @@ export class Account {
       },
       // 必须 manual：登录成功时服务器返回 302，会话 token 就在该 302 的 Set-Cookie 上；
       // 'follow' 模式会跟随重定向并丢弃中间响应的 Set-Cookie，导致取不到 token。
-      // manual 模式下 302 原样返回，成功后不要跟随 Location（会话已建立）。
       redirect: 'manual',
     })
     const token = extractToken(response.headers, this.cookieName)
@@ -200,7 +199,7 @@ export class Account {
     return this.postAction(
       `/game.php?page=buildings&cp=${planetId}`,
       new URLSearchParams({ cmd: 'insert', building: String(element), lvlup: String(count) }),
-      checkBuildAction,
+      checkAllyError,
     )
   }
 
@@ -210,7 +209,7 @@ export class Account {
     return this.postAction(
       `/game.php?page=research&cp=${planetId}`,
       new URLSearchParams({ cmd: 'insert', tech: String(element), lvlup: String(count) }),
-      checkBuildAction,
+      checkAllyError,
     )
   }
 
@@ -220,7 +219,7 @@ export class Account {
     return this.postAction(
       `/game.php?page=research&cp=${planetId}`,
       new URLSearchParams({ cmd: 'cancel' }),
-      checkBuildAction,
+      checkAllyError,
     )
   }
 
@@ -230,7 +229,7 @@ export class Account {
     return this.postAction(
       `/game.php?page=shipyard&cp=${planetId}`,
       encodeElementMap(elements, 'fmenge[', ']'),
-      checkBuildAction,
+      checkAllyError,
     )
   }
 
@@ -269,7 +268,7 @@ export class Account {
         })
       ).text(),
     )
-    const step2Result = checkFleetStep(step2)
+    const step2Result = checkAllyError(step2)
     if (!step2Result.ok) return step2Result
     const step3 = parse(
       await (
@@ -279,7 +278,7 @@ export class Account {
         })
       ).text(),
     )
-    return checkFleetStep(step3)
+    return checkAllyError(step3)
   }
 
   /** 发射星际导弹：body 含目标坐标、SendMI 数量与 Target 优先级 */

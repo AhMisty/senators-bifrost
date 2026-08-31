@@ -28,7 +28,7 @@ export const parseControl = (html: string): ControlData => {
 
   // 元素 id 序列：前 161 个 gebaeude 图标。
   // 槽位 9/10/11 是「每小时产量」图标，其图片复用资源图标（本主题为 901/902/903），
-  // 必须重映射为 931/932/933，否则总量会覆盖 901/902/903 的资源数值（移植自旧 parseControl 的注释规则）。
+  // 必须重映射为 931/932/933，否则总量会覆盖 901/902/903 的资源数值。
   const icons = root
     .querySelectorAll('img[src*="gebaeude/"]')
     .slice(0, 161)

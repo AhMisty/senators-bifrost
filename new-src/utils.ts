@@ -9,7 +9,7 @@ export const extractToken = (headers: Headers, cookieName: string): string | nul
     // lastIndexOf 定位到串尾最后一次出现，防御 cookie 名出现在其他属性值中的情况
     const start = cookie.lastIndexOf(prefix) + prefix.length
     if (start < prefix.length) continue
-    // 裸 cookie（无 ';' 属性）也截到串尾，而非像旧实现那样视为未找到
+    // 裸 cookie（无 ';' 属性）也截到串尾
     const end = cookie.indexOf(';', start)
     const value = end === -1 ? cookie.slice(start) : cookie.slice(start, end)
     if (value.length > 0) return value
@@ -17,7 +17,7 @@ export const extractToken = (headers: Headers, cookieName: string): string | nul
   return null
 }
 
-// 解析数字：去掉德语式千分位点（1.234 → 1234）后 parseInt；无法解析返回 0（移植自旧 numericalString）
+// 解析数字：去掉德语式千分位点（1.234 → 1234）后 parseInt；无法解析返回 0
 export const parseNumber = (value: string): number => parseInt(value.replaceAll('.', '')) || 0
 
 // 从页面 script 文本中提取第一个匹配 pattern 的内容；有捕获组时返回第 1 组，否则返回整段匹配；无匹配返回 null
@@ -58,7 +58,7 @@ export const extractJsObjectFromScripts = <T>(root: HTMLElement, varName: string
 }
 
 // 元素映射序列化为表单体：encodeElementMap(map, 'fmenge[', ']') → fmenge%5B210%5D=3&fmenge%5B215%5D=1。
-// 前缀/后缀按表单编码转义（中括号必须转义），数字值无需编码（移植自旧 Elements.toString）。
+// 前缀/后缀按表单编码转义（中括号必须转义），数字值无需编码。
 export const encodeElementMap = (
   map: Map<number, number>,
   prefix: string,

@@ -1,7 +1,5 @@
-// HTTP 薄层：仅负责 URL 拼接、超时与可选的重定向策略，其余全部透传给 fetch。
-// 设计原则是不过度封装：不预读响应 body、不吞错误（网络/超时原样抛出）、
-// 不自动序列化 body、不强制重定向模式，get/post 直接返回原始 Response 供调用方流式消费。
-// 传输层可通过 options.fetch 注入自定义实现（默认 globalThis.fetch）。
+// HTTP 薄层：仅负责 URL 拼接、超时与可选重定向策略，其余透传 fetch。
+// 不预读 body、不吞错误、不自动序列化、不强制重定向，get/post 返回原始 Response 供流式消费。
 export type Fetch = typeof globalThis.fetch
 
 export type ClientOptions = {
@@ -14,7 +12,7 @@ export type ClientOptions = {
 
 export type ClientGetOptions = {
   url: string
-  // 索引访问而非直接用 HeadersInit 等名字：@types/node 未把它们声明为全局类型（与旧 courier 的 RequestHeaders 一致）
+  // 索引访问而非直接用 HeadersInit 等名字：@types/node 未把它们声明为全局类型
   headers?: RequestInit['headers']
   // 不传则使用 fetch 原生默认 'follow'；需要读取 3xx 响应头（如登录的 Set-Cookie）时才显式传 'manual'
   redirect?: RequestInit['redirect']
@@ -30,7 +28,7 @@ export class Client {
   public readonly base: string
   public readonly timeout: number
   public readonly fetch: Fetch
-  // 构造时解析并校验 base（非法值立即抛 TypeError，而非等到第一次请求）；请求时直接复用解析结果
+  // 构造时解析并校验 base（非法值立即抛 TypeError），请求时复用
   private readonly baseUrl: URL
 
   constructor(options: ClientOptions) {
@@ -55,8 +53,7 @@ export class Client {
         signal: controller.signal,
       })
     } finally {
-      // 无论成功失败都清除定时器；定时器清掉后信号不会再触发，不会误伤已返回的响应 body 流。
-      // 超时只覆盖到响应头到达为止（fetch 在收到响应头时 resolve）。
+      // 清除定时器，避免信号在响应返回后误伤 body 流（超时只覆盖到响应头到达为止）
       clearTimeout(id)
     }
   }

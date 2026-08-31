@@ -26,24 +26,29 @@ export const parseControl = (html: string): ControlData => {
     container: resource('container'),
   }
 
-  // 元素 id 序列：前 161 个 gebaeude 图标（9 资源 → 3 每小时产量 → 23 建筑 → 66 舰船 → 60 防御，源码验证）。
-  // 槽位 9/10/11 是「每小时产量」列，图片复用资源图标（901/902/903），必须重映射为 931/932/933
-  // 作为自定义键（New-Star 无此元素 id），否则总量会覆盖 901/902/903 的资源储量。
+  // 元素 id 序列：前 161 个 gebaeude 图标（9 资源/仪表 → 3 每小时产量 → 23 建筑 → 66 舰船 → 60 防御，源码验证）。
+  // 槽位 9/10/11 是「每小时产量」列，图片复用资源图标（901/902/903）——New-Star 无对应元素 id，
+  // 解析时跳过该槽位并单独归入 production 字段，防止覆盖 901/902/903 的资源储量。
   const icons = root
     .querySelectorAll('img[src*="gebaeude/"]')
     .slice(0, 161)
     .map((img) => Number(img.getAttribute('src')?.match(/gebaeude\/(\d+)\./)?.[1] ?? NaN))
   if (icons.length < 161 || icons.some(Number.isNaN))
     throw new Error(`元素图标数量异常（${icons.length}/161）`)
-  icons[9] = 931
-  icons[10] = 932
-  icons[11] = 933
 
   // 总量列：#sigma 列内的 imper_block_td 单元格，与图标序列一一对应
   const totals = root.querySelector('#sigma')?.querySelectorAll('.imper_block_td').slice(0, 161)
   if (!totals || totals.length < 161) throw new Error('sigma 总量单元格数量异常')
+  const production = {
+    metal: parseNumber(totals[9].textContent),
+    crystal: parseNumber(totals[10].textContent),
+    deuterium: parseNumber(totals[11].textContent),
+  }
   const elements: ElementMap = new Map()
-  icons.forEach((id, index) => elements.set(id, parseNumber(totals[index].textContent)))
+  icons.forEach((id, index) => {
+    if (index >= 9 && index <= 11) return
+    elements.set(id, parseNumber(totals[index].textContent))
+  })
 
   // 行星列：#sigma 之外每个 .imper_block_vertical 是一颗星球
   const planets: PlanetInfo[] = root
@@ -71,9 +76,10 @@ export const parseControl = (html: string): ControlData => {
         .find(Boolean)
       const cells = column.querySelectorAll('.imper_block_td').slice(0, 161)
       const planetElements: ElementMap = new Map()
-      icons.forEach((elementId, index) =>
-        planetElements.set(elementId, parseNumber(cells[index]?.textContent ?? '')),
-      )
+      icons.forEach((elementId, index) => {
+        if (index >= 9 && index <= 11) return
+        planetElements.set(elementId, parseNumber(cells[index]?.textContent ?? ''))
+      })
       return {
         id,
         type,
@@ -81,9 +87,14 @@ export const parseControl = (html: string): ControlData => {
         coordinate: { galaxy: galaxy ?? 0, system: system ?? 0, position: position ?? 0 },
         used: usedSize ? Number(usedSize[1]) : 0,
         size: usedSize ? Number(usedSize[2]) : 0,
+        production: {
+          metal: parseNumber(cells[9]?.textContent ?? ''),
+          crystal: parseNumber(cells[10]?.textContent ?? ''),
+          deuterium: parseNumber(cells[11]?.textContent ?? ''),
+        },
         elements: planetElements,
       }
     })
 
-  return { playerId, resources, elements, planets }
+  return { playerId, resources, production, elements, planets }
 }

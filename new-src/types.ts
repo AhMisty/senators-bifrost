@@ -22,6 +22,13 @@ export type Resources = {
   container: number
 }
 
+// 每小时产量：control 页槽位 9/10/11 的命名化（New-Star 无对应元素 id，页面复用资源图标显示）
+export type Production = {
+  metal: number
+  crystal: number
+  deuterium: number
+}
+
 // 行星列信息：type 区分行星/月球（New-Star 主题的行星列容器无 id，按类型图标 class 区分）
 export type PlanetInfo = {
   id: number
@@ -30,13 +37,18 @@ export type PlanetInfo = {
   coordinate: Coordinate
   used: number
   size: number
+  // 每小时产量（槽位 9/10/11）
+  production: Production
   elements: ElementMap
 }
 
 export type ControlData = {
   playerId: number
   resources: Resources
-  // 161 项元素总量（含资源/建筑/科研/舰船/防御等，id 来自页面图标序列）
+  // 每小时产量（槽位 9/10/11，全帝国总量）
+  production: Production
+  // 真实元素 id 映射（资源储量 901-903、仪表 911-916、建筑/舰船/防御），不含每小时产量槽；
+  // 911=能源产能、912-916=建造/科技/舰队/防御/导弹 仪表值
   elements: ElementMap
   planets: PlanetInfo[]
 }

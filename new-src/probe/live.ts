@@ -48,8 +48,10 @@ console.log(
       coordinate: p.coordinate,
       used: p.used,
       size: p.size,
+      production: p.production,
       elementCount: p.elements.size,
     })),
+    production: control.production,
     elementCount: control.elements.size,
   }),
 )
@@ -68,8 +70,10 @@ if (controlFixture) {
         coordinate: p.coordinate,
         used: p.used,
         size: p.size,
+        production: p.production,
         elementCount: p.elements.size,
       })),
+      production: f.production,
       elementCount: f.elements.size,
     }),
   )

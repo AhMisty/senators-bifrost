@@ -174,12 +174,10 @@ ok(
     control.resources.stardust === 7 &&
     control.resources.container === 0,
 )
-ok('元素总量 161 项', control.elements.size === 161 && control.elements.get(901) === 1)
+ok('元素映射(158 真实元素)', control.elements.size === 158 && control.elements.get(901) === 1 && !control.elements.has(931))
 ok(
-  '每小时产量槽重映射(931/932/933)',
-  control.elements.get(931) === 10 &&
-    control.elements.get(932) === 11 &&
-    control.elements.get(933) === 12,
+  '每小时产量已命名化(production)',
+  control.production.metal === 10 && control.production.crystal === 11 && control.production.deuterium === 12,
 )
 ok(
   '星球信息',
@@ -197,8 +195,10 @@ ok(
     control.planets[0].size === 163,
 )
 ok(
-  '星球元素映射',
-  control.planets[0].elements.size === 161 && control.planets[0].elements.get(1) === 130,
+  '星球元素映射与产量',
+  control.planets[0].elements.size === 158 &&
+    control.planets[0].elements.get(1) === 130 &&
+    control.planets[0].production.metal === 100,
 )
 
 // research：首次请求触发 302 → 自动重登 → 重试

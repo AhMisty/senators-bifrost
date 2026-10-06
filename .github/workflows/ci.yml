@@ -1,0 +1,26 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '26'
+      - name: Install
+        run: npm install
+      - name: Build
+        run: npm run build
+      - name: The checks changed nothing
+        run: |
+          git status --porcelain
+          test -z "$(git status --porcelain)"

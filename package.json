@@ -1,0 +1,81 @@
+{
+  "name": "@senators/bifrost",
+  "version": "7.0.0",
+  "description": "An ESM TypeScript protocol client for the New-Star server.",
+  "keywords": [
+    "@senators/bifrost",
+    "senators",
+    "bifrost",
+    "ogame"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/AhMisty/senators-bifrost",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AhMisty/senators-bifrost.git"
+  },
+  "bugs": {
+    "url": "https://github.com/AhMisty/senators-bifrost/issues",
+    "email": "AhMisty@outlook.com"
+  },
+  "author": "AhMisty",
+  "type": "module",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=26"
+  },
+  "files": [
+    "out",
+    "src"
+  ],
+  "exports": {
+    ".": {
+      "types": "./out/index.d.ts",
+      "import": "./out/index.js"
+    },
+    "./game": {
+      "types": "./out/game.d.ts",
+      "import": "./out/game.js"
+    },
+    "./rules": {
+      "types": "./out/rules.d.ts",
+      "import": "./out/rules.js"
+    },
+    "./admin": {
+      "types": "./out/admin.d.ts",
+      "import": "./out/admin.js"
+    },
+    "./public": {
+      "types": "./out/public.d.ts",
+      "import": "./out/public.js"
+    }
+  },
+  "dependencies": {
+    "css-select": "^7.0.0",
+    "domhandler": "^6.0.1",
+    "domutils": "^4.0.2",
+    "entities": "^8.1.0",
+    "meriyah": "^7.4.0",
+    "tag-soup": "^3.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.4",
+    "npm-run-all2": "^9.0.3",
+    "oxfmt": "^0.72.0",
+    "oxlint": "^1.87.0",
+    "oxlint-tsgolint": "^7.0.2003",
+    "rolldown": "^1.2.12",
+    "rolldown-plugin-dts": "^0.28.6"
+  },
+  "scripts": {
+    "lint": "oxlint . --fix --type-aware --type-check --ignore-path .gitignore",
+    "fmt": "oxfmt . --write --ignore-path .gitignore",
+    "test": "node --test --experimental-test-coverage --test-coverage-include-all --test-coverage-include=src/** --test-coverage-lines=100 --test-coverage-branches=100 --test-coverage-functions=100",
+    "check": "run-s lint fmt test",
+    "build:only": "rolldown -c rolldown.config.ts",
+    "test:package": "node --test tests/package.ts",
+    "build": "run-s check build:only test:package",
+    "prepack": "run-s build",
+    "release": "npm publish --access public"
+  }
+}
